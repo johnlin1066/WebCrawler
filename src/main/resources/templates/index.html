@@ -66,7 +66,7 @@
                                         <option value="USD/TWD">美元</option>
                                         <option value="AUD/TWD">澳幣</option>
                                         <option value="ZAR/TWD">南非幣</option>
-                                        <option value="JPY/TWD">日圓</option>
+                                        <option value="EUR/TWD">歐元</option>
                                     </select>
                                 </div>
                                 <div class="form-group col">
@@ -79,17 +79,15 @@
                     <div class="card-footer small text-muted" th:text="|Updated at ${#dates.createNow()}|"></div>
                 </div>
 
-
-
                 <!-- Area Chart Example-->
                 <div class="card mb-3">
                     <div class="card-header">
                         <i class="fas fa-chart-area"></i>
-                        Exchange Rate Charts</div>
+                        Exchange Rate Charts - <span th:text="${currencyType}"></span></div>
                     <div class="card-body">
                         <canvas id="myAreaChart" width="100%" height="30"></canvas>
                     </div>
-                    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+                    <div class="card-footer small text-muted" th:text="|Updated at ${#dates.createNow()}|"></div>
                 </div>
 
             </div>
@@ -127,9 +125,30 @@
 
     <script th:inline="javascript">
         /*<![CDATA[*/
-        var timeList = [[${ timeList }]];
-        var buyList = [[${ buyList }]];
-        var sellList = [[${ sellList }]];
+        var timeList = /*[[${timeList}]]*/ [];
+        var buyList = /*[[${buyList}]]*/ [];
+        var sellList = /*[[${sellList}]]*/ [];
+
+        function moneyMAX(){
+            if(buyList != null){
+                let max = 0;
+            for( money of buyList.concat(sellList))
+                if(money>max)
+                    max=money;
+            return Math.ceil(max);
+            }
+        }
+        
+        function moneyMIN(){
+            if(buyList != null){
+                let min = 1000;
+            for(money of buyList.concat(sellList))
+                if(money<min)
+                    min=money;
+            return Math.floor(min);
+            }
+        }
+
     /*]]>*/
     </script>
 
@@ -145,32 +164,18 @@
             data: {
                 labels: timeList,
                 datasets: [{
-                    label: "Sessions",
-                    lineTension: 0.3,
+                    label: "Buy",
                     backgroundColor: "rgba(2,117,216,0.2)",
                     borderColor: "rgba(2,117,216,1)",
-                    pointRadius: 5,
-                    pointBackgroundColor: "rgba(2,117,216,1)",
-                    pointBorderColor: "rgba(255,255,255,0.8)",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "rgba(2,117,216,1)",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
+                    fill: false,
                     data: buyList,
                 }, {
-                    label: "Sessions",
-                    lineTension: 0.3,
-                    backgroundColor: "rgba(2,117,216,0.2)",
-                    borderColor: "rgba(2,117,216,1)",
-                    pointRadius: 5,
-                    pointBackgroundColor: "rgba(2,117,216,1)",
-                    pointBorderColor: "rgba(255,255,255,0.8)",
-                    pointHoverRadius: 5,
-                    pointHoverBackgroundColor: "rgba(2,117,216,1)",
-                    pointHitRadius: 50,
-                    pointBorderWidth: 2,
+                    label: "Sell",
+                    backgroundColor: "rgba(255,69,0,0.2)",
+                    borderColor: "rgba(255,69,0,1)",
+                    fill: false,
                     data: sellList,
-                ],
+                }],
             },
             options: {
                 scales: {
@@ -187,9 +192,9 @@
                     }],
                     yAxes: [{
                         ticks: {
-                            min: 0,
-                            max: 50,
-                            maxTicksLimit: 5
+                            min: moneyMIN(),
+                            max: moneyMAX(),
+                            maxTicksLimit: 10
                         },
                         gridLines: {
                             color: "rgba(0, 0, 0, .125)",

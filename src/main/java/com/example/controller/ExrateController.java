@@ -27,6 +27,7 @@ public class ExrateController {
 		Exrate exrate = exrateService.crawlerExrate(url);
 		
 		ModelAndView mv = new ModelAndView();
+		mv.addObject("currencyType", currency.split("/")[0]);
 		mv.addObject("timeList", exrate.getTimeList());
 		mv.addObject("buyList", exrate.getBuyList());
 		mv.addObject("sellList", exrate.getSellList());
